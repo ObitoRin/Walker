@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        canvas {
+            border: 1px solid skyblue;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<canvas width="600" height="400"></canvas>
+<script>
+  function Person() {
+    /*上下文*/
+    this.ctx = document.querySelector('canvas').getContext('2d');
+    /*图片路径*/
+    this.imageSrc = 'image/03.png';
+    /*步数大小*/
+    this.stepSize = 10;
+    /*图片索引*/
+    this.index = 0;
+    /*方向 0下 1左 2右 3上 */
+    this.direction = 0;
+    /*x轴方向偏移步数*/
+    this.stepX = 0;
+    /*y轴方向偏移步数*/
+    this.stepY = 0;
+  }
+
+  Person.prototype.init = function () {
+    this.loadImage();
+  };
+  /*加载图片*/
+  Person.prototype.loadImage = function () {
+    var image = new Image();
+    var that = this;
+    /*图片加载完毕*/
+    image.onload = function () {
+      /*人物的宽高*/
+      this.personWidth = image.width / 4;
+      this.personHeight = image.height / 4;
+      /*人物的位置*/
+      this.x = this.ctx.canvas.width / 2 - this.personWidth / 2;
+      this.y = this.ctx.canvas.height / 2 - this.personHeight / 2;
+      /*绘制图片在中心位置*/
+      this.ctx.drawImage(image, 0, 0, this.personWidth, this.personHeight, this.x, this.y, this.personWidth, this.personHeight);
+      /*按方向键控制人物行走*/
+      document.onkeydown = function (e) {
+        /*40下 37左 39右 38上*/
+        switch (e.keyCode) {
+          case 40 :
+            that.direction = 0;
+            that.stepY++;
+            that.drawImage(image);
+            break;
+          case 37 :
+            that.direction = 1;
+            that.stepX--;
+            that.drawImage(image);
+            break;
+          case 39 :
+            that.direction = 2;
+            that.stepX++;
+            that.drawImage(image);
+            break;
+          case 38 :
+            that.direction = 3;
+            that.stepY--;
+            that.drawImage(image);
+            break;
+        }
+      };
+    }.bind(this);
+    image.src = this.imageSrc;
+  };
+  /*绘制人物*/
+  Person.prototype.drawImage = function (image) {
+    this.index++;
+    // this.x+this.stepX*this.stepSize,this.y+this.stepY*this.stepSize
+    // this.personWidth,this.personHeight
+    this.ctx.clearRect(0,0,this.ctx.canvas.width,this.ctx.canvas.height);
+    this.ctx.drawImage(image,
+      this.index * this.personWidth, this.direction * this.personHeight,
+      this.personWidth, this.personHeight,
+      this.x + this.stepX * this.stepSize, this.y + this.stepY * this.stepSize,
+      this.personWidth, this.personHeight);
+    /*索引超出图片数又变为第一张图*/
+    if (this.index >= 3) {
+      this.index = 0;
+    }
+  };
+  var person = new Person();
+  person.init();
+</script>
+</body>
+</html>
